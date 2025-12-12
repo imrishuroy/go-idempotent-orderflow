@@ -1,4 +1,4 @@
-package main
+package worker
 
 import (
 	"context"
@@ -10,12 +10,7 @@ import (
 	"github.com/aws/aws-lambda-go/lambda"
 )
 
-// WorkerMessage is the expected SQS message body for an order processing job.
-type WorkerMessage struct {
-	OrderID        string `json:"order_id"`
-	IdempotencyKey string `json:"idempotency_key,omitempty"`
-	CorrelationID  string `json:"correlation_id,omitempty"`
-}
+
 
 func handleSQSEvent(ctx context.Context, event events.SQSEvent) error {
 	log.Printf("received %d SQS messages", len(event.Records))
