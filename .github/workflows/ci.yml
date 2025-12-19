@@ -2,7 +2,7 @@ name: CI - Build, Test, Terraform Plan
 
 on:
   pull_request:
-    branches: [ main, staging ]
+    branches: [ main, staging, ft/infra ]
 
 jobs:
   build-test:
@@ -41,10 +41,10 @@ jobs:
       #     GOOS=linux go test ./tests/integration -v
 
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_CI }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_CI }}
           aws-region: ap-south-1
 
       - name: Set S3 Artifact Bucket
