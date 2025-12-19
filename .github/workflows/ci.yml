@@ -49,7 +49,7 @@ jobs:
 
       - name: Set S3 Artifact Bucket
         run: |
-          echo "S3_ARTIFACT_BUCKET=orderflow-artifacts"
+          echo "S3_ARTIFACT_BUCKET=orderflow-artifacts" >> $GITHUB_ENV
 
       - name: Build API Lambda
         run: |
