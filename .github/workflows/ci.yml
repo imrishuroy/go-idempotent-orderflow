@@ -12,7 +12,7 @@ jobs:
       GO111MODULE: on
       AWS_REGION: ap-south-1
       TF_IN_AUTOMATION: true
-
+      
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,8 +53,8 @@ jobs:
 
       - name: Upload to S3 (Artifact Bucket)
         run: |
-          aws s3 cp build/api.zip s3://$S3_BUCKET/pipelines/${{ github.sha }}/api.zip
-          aws s3 cp build/worker.zip s3://$S3_BUCKET/pipelines/${{ github.sha }}/worker.zip
+          aws s3 cp build/api.zip s3://$S3_ARTIFACT_BUCKET/pipelines/${{ github.sha }}/api.zip
+          aws s3 cp build/worker.zip s3://$S3_ARTIFACT_BUCKET/pipelines/${{ github.sha }}/worker.zip
 
       - name: Terraform Init
         working-directory: infra/terraform/envs/staging
