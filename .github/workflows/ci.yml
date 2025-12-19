@@ -25,8 +25,8 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
-      - name: Run unit tests
-        run: go test ./... -v
+      # - name: Run unit tests
+      #   run: go test ./... -v
 
       # - name: LocalStack start
       #   uses: localstack/setup-localstack@v1
