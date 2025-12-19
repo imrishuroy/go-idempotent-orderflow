@@ -17,13 +17,13 @@ func TestLoadAWSConfig_DefaultRegion(t *testing.T) {
 		t.Fatalf("unexpected error: %v", err)
 	}
 
-	if cfg.Region != "us-east-1" {
-		t.Fatalf("expected default region 'us-east-1', got %s", cfg.Region)
+	if cfg.Region != "ap-south-1" {
+		t.Fatalf("expected default region 'ap-south-1', got %s", cfg.Region)
 	}
 }
 
 func TestLoadAWSConfig_WithEndpointOverride(t *testing.T) {
-	os.Setenv("AWS_REGION", "us-east-1")
+	os.Setenv("AWS_REGION", "ap-south-1")
 	os.Setenv("AWS_ENDPOINT_OVERRIDE", "http://localhost:4566")
 
 	cfg, err := internalaws.LoadAWSConfig(context.Background())
@@ -32,7 +32,7 @@ func TestLoadAWSConfig_WithEndpointOverride(t *testing.T) {
 	}
 
 	// we can't guarantee exact endpoints here, but we can ensure no error.
-	if cfg.Region != "us-east-1" {
+	if cfg.Region != "ap-south-1" {
 		t.Fatalf("region mismatch, got %s", cfg.Region)
 	}
 }

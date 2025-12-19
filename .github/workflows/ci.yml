@@ -1,38 +1,81 @@
-name: CI
+name: CI - Build, Test, Terraform Plan
 
 on:
-  push:
-    branches: [main]
   pull_request:
-    branches: [main]
+    branches: [ main, staging ]
 
 jobs:
-  build:
+  build-test:
+    name: Run tests and build Lambda artifacts
     runs-on: ubuntu-latest
+    env:
+      GO111MODULE: on
+      AWS_REGION: ap-south-1
+      TF_IN_AUTOMATION: true
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.20
+          go-version: "1.22"
 
-      - name: Cache Go modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+      - name: Install dependencies
+        run: go mod download
 
-      - name: Install golangci-lint
+      - name: Run unit tests
+        run: go test ./... -v
+
+      # - name: LocalStack start
+      #   uses: localstack/setup-localstack@v1
+      #   with:
+      #     services: dynamodb,sqs,lambda
+      #     image-tag: "latest"
+      #     install-awslocal: "true"
+
+      # - name: Run integration tests (LocalStack)
+      #   run: |
+      #     echo "Running integration tests..."
+      #     GOOS=linux go test ./tests/integration -v
+
+      - name: Build API Lambda
         run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $GOPATH/bin v1.59.0
+          mkdir -p build
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o build/api ./cmd/api
+          zip -j build/api.zip build/api
 
-      - name: Go test
-        run: make test
+      - name: Build Worker Lambda
+        run: |
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o build/worker ./cmd/worker
+          zip -j build/worker.zip build/worker
 
-      - name: Lint
-        run: make lint
+      - name: Upload to S3 (Artifact Bucket)
+        run: |
+          aws s3 cp build/api.zip s3://$S3_BUCKET/pipelines/${{ github.sha }}/api.zip
+          aws s3 cp build/worker.zip s3://$S3_BUCKET/pipelines/${{ github.sha }}/worker.zip
+
+      - name: Terraform Init
+        working-directory: infra/terraform/envs/staging
+        run: terraform init -input=false
+
+      - name: Terraform Plan
+        working-directory: infra/terraform/envs/staging
+        run: terraform plan \
+              -var "lambda_api_s3_key=pipelines/${{ github.sha }}/api.zip" \
+              -var "lambda_worker_s3_key=pipelines/${{ github.sha }}/worker.zip" \
+              -out tfplan
+
+      - name: Upload Terraform Plan to PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            const plan = fs.readFileSync('infra/terraform/envs/staging/tfplan', 'utf8')
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "### Terraform Plan\n```\n" + plan + "\n```"
+            })

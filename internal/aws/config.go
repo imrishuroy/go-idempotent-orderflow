@@ -12,7 +12,7 @@ import (
 func LoadAWSConfig(ctx context.Context) (sdkaws.Config, error) {
 	region := os.Getenv("AWS_REGION")
 	if region == "" {
-		region = "us-east-1" // default fallback
+		region = "ap-south-1" // default fallback
 	}
 
 	var cfg sdkaws.Config
