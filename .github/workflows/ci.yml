@@ -73,22 +73,23 @@ jobs:
           aws s3 cp build/worker.zip s3://$S3_ARTIFACT_BUCKET/pipelines/${{ github.sha }}/worker.zip
 
       - name: Terraform Init
-        working-directory: infra/terraform/envs/staging
-        run: terraform init -input=false
+        run: terraform -chdir=infra/terraform/envs/staging init -input=false
 
       - name: Terraform Plan
-        working-directory: infra/terraform/envs/staging
-        run: terraform plan \
-              -var "lambda_api_s3_key=pipelines/${{ github.sha }}/api.zip" \
-              -var "lambda_worker_s3_key=pipelines/${{ github.sha }}/worker.zip" \
-              -out tfplan
+        run: terraform -chdir=infra/terraform/envs/staging plan \
+          -var "lambda_api_s3_key=pipelines/${{ github.sha }}/api.zip" \
+          -var "lambda_worker_s3_key=pipelines/${{ github.sha }}/worker.zip" \
+          -out tfplan
+
+      - name: Render Terraform Plan (text)
+        run: terraform -chdir=infra/terraform/envs/staging show -no-color tfplan > infra/terraform/envs/staging/tfplan.txt
 
       - name: Upload Terraform Plan to PR
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs')
-            const plan = fs.readFileSync('infra/terraform/envs/staging/tfplan', 'utf8')
+            const plan = fs.readFileSync('infra/terraform/envs/staging/tfplan.txt', 'utf8')
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
