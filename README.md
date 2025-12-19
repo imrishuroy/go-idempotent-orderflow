@@ -12,3 +12,23 @@ Run API locally:
 make run-local-api
 # then
 curl -X GET http://localhost:8080/health
+
+.
+├─ cmd/
+│  ├─ api/
+│  │  └─ main.go
+│  └─ worker/
+│     └─ main.go
+├─ internal/
+│  └─ placeholders (README note)
+├─ .golangci.yml
+├─ Makefile
+├─ go.mod
+├─ go.sum (not included here; generated)
+├─ .github/
+│  └─ workflows/
+│     └─ ci.yml
+├─ README.md
+└─ tests/
+   └─ unit/
+      └─ placeholder_test.go

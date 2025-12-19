@@ -1,0 +1,95 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "UploadLambdaArtifacts",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::orderflow-artifacts",
+        "arn:aws:s3:::orderflow-artifacts/*"
+      ]
+    },
+    {
+      "Sid": "TerraformStateReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::orderflow-tf-state",
+        "arn:aws:s3:::orderflow-tf-state/*"
+      ]
+    },
+    {
+      "Sid": "TerraformLockTableAccess",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:DescribeTable"
+      ],
+      "Resource": "arn:aws:dynamodb:*:*:table/orderflow-tf-lock"
+    },
+    {
+      "Sid": "TerraformPlanReadOnlyAWS",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:ListTables",
+        "dynamodb:DescribeTable",
+        "lambda:ListFunctions",
+        "lambda:GetFunction",
+        "iam:ListRoles",
+        "iam:GetRole",
+        "iam:GetPolicy",
+        "iam:ListPolicies",
+        "sqs:ListQueues",
+        "sqs:GetQueueAttributes",
+        "cloudwatch:DescribeAlarms",
+        "cloudwatch:ListMetrics",
+        "apigateway:GET",
+        "logs:DescribeLogGroups"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyAllMutations",
+      "Effect": "Deny",
+      "Action": [
+        "dynamodb:CreateTable",
+        "dynamodb:UpdateTable",
+        "dynamodb:DeleteTable",
+
+        "lambda:CreateFunction",
+        "lambda:DeleteFunction",
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration",
+
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:PutRolePolicy",
+        "iam:AttachRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:DeleteRolePolicy",
+
+        "sqs:CreateQueue",
+        "sqs:DeleteQueue",
+        "sqs:SetQueueAttributes",
+
+        "cloudwatch:PutMetricAlarm",
+        "cloudwatch:DeleteAlarms",
+
+        "apigateway:POST",
+        "apigateway:PUT",
+        "apigateway:DELETE"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

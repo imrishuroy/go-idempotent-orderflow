@@ -5,14 +5,17 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
 	"github.com/gin-gonic/gin"
+	"github.com/imrishuroy/go-idempotent-orderflow/internal/aws"
+	"github.com/imrishuroy/go-idempotent-orderflow/internal/handlers"
 )
 
-func setupRouter() *gin.Engine {
+func setupRouter(cfg handlers.HandlerConfig) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Recovery())
 
@@ -21,17 +24,28 @@ func setupRouter() *gin.Engine {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
-	r.POST("/orders", func(c *gin.Context) {
-		c.JSON(http.StatusNotImplemented, gin.H{
-			"message": "orders endpoint not implemented yet - proceed to Step 2 to implement",
-		})
-	})
+	handlers.RegisterOrdersRoutes(r, cfg)
 
 	return r
 }
 
 func main() {
-	r := setupRouter()
+	clients, err := aws.NewAWSClients(context.Background())
+
+	if err != nil {
+		log.Fatalf("failed to init aws clients: %v", err)
+	}
+
+	cfg := handlers.HandlerConfig{
+		DynamoDBClient:   clients.DynamoDB,
+		SQSClient:        clients.SQS,
+		IdempotencyTable: os.Getenv("IDEMPOTENCY_TABLE"),
+		OrdersTable:      os.Getenv("ORDERS_TABLE"),
+		QueueURL:         os.Getenv("ORDERS_QUEUE_URL"),
+		TTLWindow:        48 * time.Hour,
+	}
+
+	r := setupRouter(cfg)
 
 	// if environment variable RUN_LOCAL is set to "true", run local HTTP server for development.
 	if os.Getenv("RUN_LOCAL") == "true" {
