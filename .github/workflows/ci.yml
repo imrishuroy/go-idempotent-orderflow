@@ -62,6 +62,11 @@ jobs:
           GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o build/worker ./cmd/worker
           zip -j build/worker.zip build/worker
 
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
+
       - name: Upload to S3 (Artifact Bucket)
         run: |
           aws s3 cp build/api.zip s3://$S3_ARTIFACT_BUCKET/pipelines/${{ github.sha }}/api.zip
