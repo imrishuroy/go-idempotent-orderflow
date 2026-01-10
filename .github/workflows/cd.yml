@@ -31,6 +31,34 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_CD }}
           aws-region: ap-south-1
 
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Set S3 Artifact Bucket
+        run: |
+          echo "S3_ARTIFACT_BUCKET=orderflow-artifacts" >> $GITHUB_ENV
+
+      - name: Build API Lambda
+        run: |
+          mkdir -p build
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o build/api ./cmd/api
+          zip -j build/api.zip build/api
+
+      - name: Build Worker Lambda
+        run: |
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o build/worker ./cmd/worker
+          zip -j build/worker.zip build/worker
+
+      - name: Upload to S3 (Artifact Bucket)
+        run: |
+          aws s3 cp build/api.zip s3://$S3_ARTIFACT_BUCKET/pipelines/${{ github.sha }}/api.zip
+          aws s3 cp build/worker.zip s3://$S3_ARTIFACT_BUCKET/pipelines/${{ github.sha }}/worker.zip
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -42,7 +70,8 @@ jobs:
 
       - name: Terraform Apply
         working-directory: infra/terraform/envs/staging
-        run: terraform apply -auto-approve \
-          -var "lambda_s3_bucket=orderflow-artifacts" \
-          -var "lambda_api_s3_key=pipelines/${{ github.sha }}/api.zip" \
-          -var "lambda_worker_s3_key=pipelines/${{ github.sha }}/worker.zip"
+        run: |
+          terraform apply -auto-approve \
+            -var="lambda_s3_bucket=$S3_ARTIFACT_BUCKET" \
+            -var="lambda_api_s3_key=pipelines/${{ github.sha }}/api.zip" \
+            -var="lambda_worker_s3_key=pipelines/${{ github.sha }}/worker.zip"
