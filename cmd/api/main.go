@@ -47,7 +47,8 @@ func main() {
 
 	r := setupRouter(cfg)
 
-	// if environment variable RUN_LOCAL is set to "true", run local HTTP server for development.
+	// if environment variable RUN_LOCAL is set to "true", 
+	// run local HTTP server for development.
 	if os.Getenv("RUN_LOCAL") == "true" {
 		addr := ":8080"
 		log.Printf("running local server on %s", addr)

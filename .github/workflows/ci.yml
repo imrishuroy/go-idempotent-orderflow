@@ -2,7 +2,13 @@ name: CI - Build, Test, Terraform Plan
 
 on:
   pull_request:
-    branches: [ main, staging, ft/infra ]
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run workflow on'
+        required: true
+        default: 'main'
 
 jobs:
   build-test:
