@@ -57,7 +57,9 @@
         "dynamodb:UpdateItem",
         "dynamodb:GetItem",
         "dynamodb:DeleteItem",
-        "dynamodb:TagResource"
+        "dynamodb:TagResource",
+        "dynamodb:UntagResource",
+        "dynamodb:ListTagsOfResource"
       ],
       "Resource": "*"
     },
