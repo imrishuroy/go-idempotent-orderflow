@@ -32,3 +32,9 @@ curl -X GET http://localhost:8080/health
 └─ tests/
    └─ unit/
       └─ placeholder_test.go
+
+
+CMDs
+
+aws iam list-user-policies --user-name github-ci-runner
+aws iam get-user-policy --user-name github-ci-runner --policy-name CI
