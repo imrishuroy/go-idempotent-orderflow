@@ -19,7 +19,7 @@ func setupRouter(cfg handlers.HandlerConfig) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Recovery())
 
-	// health
+	// health check
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
@@ -47,7 +47,7 @@ func main() {
 
 	r := setupRouter(cfg)
 
-	// if environment variable RUN_LOCAL is set to "true", 
+	// if environment variable RUN_LOCAL is set to "true",
 	// run local HTTP server for development.
 	if os.Getenv("RUN_LOCAL") == "true" {
 		addr := ":8080"
