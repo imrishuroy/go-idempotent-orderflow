@@ -3,6 +3,20 @@
   "Statement": [
 
     {
+      "Sid": "S3ArtifactBucketAccess",
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::orderflow-artifacts",
+        "arn:aws:s3:::orderflow-artifacts/*"
+      ]
+    },
+
+    {
       "Sid": "TerraformStateFullAccess",
       "Effect": "Allow",
       "Action": [
@@ -36,6 +50,9 @@
         "dynamodb:UpdateTable",
         "dynamodb:DeleteTable",
         "dynamodb:DescribeTable",
+        "dynamodb:DescribeContinuousBackups",
+        "dynamodb:UpdateTimeToLive",
+        "dynamodb:DescribeTimeToLive",
         "dynamodb:PutItem",
         "dynamodb:UpdateItem",
         "dynamodb:GetItem",
@@ -73,7 +90,14 @@
         "iam:AttachRolePolicy",
         "iam:DetachRolePolicy",
         "iam:GetRole",
-        "iam:PassRole"
+        "iam:PassRole",
+        "iam:ListRolePolicies",
+        "iam:ListAttachedRolePolicies",
+        "iam:CreatePolicy",
+        "iam:DeletePolicy",
+        "iam:GetPolicy",
+        "iam:GetPolicyVersion",
+        "iam:ListPolicyVersions"
       ],
       "Resource": "*"
     },
@@ -86,7 +110,10 @@
         "sqs:DeleteQueue",
         "sqs:GetQueueAttributes",
         "sqs:SetQueueAttributes",
-        "sqs:ListQueues"
+        "sqs:ListQueues",
+        "sqs:ListQueueTags",
+        "sqs:TagQueue",
+        "sqs:UntagQueue"
       ],
       "Resource": "*"
     },
