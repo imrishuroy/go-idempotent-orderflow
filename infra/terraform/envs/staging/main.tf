@@ -63,5 +63,5 @@ resource "aws_lambda_event_source_mapping" "sqs_to_worker" {
 }
 
 output "api_function_url" {
-  value = module.lambda_api.function_name # if using Function URL, use its output
+  value = module.lambda_api.lambda_name # if using Function URL, use its output
 }
