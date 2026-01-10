@@ -10,6 +10,11 @@ on:
         required: true
         default: 'main'
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   build-test:
     name: Run tests and build Lambda artifacts
