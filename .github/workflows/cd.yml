@@ -1,8 +1,14 @@
 name: CD - Deploy via Terraform Apply
 
 on:
-  push:
+  pull_request:
     branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run workflow on'
+        required: true
+        default: 'main'
 
 jobs:
   deploy:
